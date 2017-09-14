@@ -66,8 +66,8 @@ def main():
     #eps_to_png(STUDENT_FILE_NAME)
     # porovnej resitelovo reseni a vzorove reseni
     difference = compare_solutions()
-    print difference
+    print(difference)
     if difference > MAX_DIFFERENCE:
-        print 'NOK'
+        print('NOK')
     else:
-        print 'OK'
+        print('OK')

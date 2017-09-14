@@ -8,7 +8,7 @@ KSI_TURTLE_8kl = []
 def KSI_WRITE_8kl():
     print("\n#KSI_META_OUTPUT_0a859a#")
     for t in KSI_TURTLE_8kl:
-        print(" ".join(str(x) for x in t))
+        print((" ".join(str(x) for x in t)))
 
 def done():
     pass
