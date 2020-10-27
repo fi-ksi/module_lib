@@ -151,7 +151,7 @@ def _student_exec_stdout(student_func: Callable[..., Any], *args: Any,
     except Exception as exc:  # pylint: disable=broad-except
         assert False, \
             f"Při pokusu o spuštění funkce '{student_func.__name__}' " \
-            f"{args_str} došlo k chybě: \n" + \
+            f"{args_str} došlo k chybě: " + \
             exception_str(exc)
 
 
