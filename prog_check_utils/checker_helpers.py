@@ -6,7 +6,6 @@ import importlib.util
 from types import ModuleType, FunctionType
 from typing import Iterable, Any, Optional, Callable, Dict, Tuple, List
 import functools
-import html
 import copy
 import re
 
@@ -15,14 +14,14 @@ from utils.args_mutability import assert_immutable_arg_default_values
 
 
 def exception_str(exc: BaseException) -> str:
-    """Return properly exscaped html message of the exception."""
+    """Return message of the exception."""
     exc_description = type(exc).__name__
     if exc.args:
         exc_description += ": " + str(exc.args[0])
     if isinstance(exc, ImportError):
         # remove the library path
         exc_description = re.sub(r" \(.*\)", "", exc_description)
-    return html.escape(exc_description)
+    return exc_description
 
 
 def import_file(name: str, filename: str) -> ModuleType:
@@ -106,11 +105,10 @@ def stringify_args(*args: Any, **kwargs: Any) -> str:
     Returns args & kwargs as a text to be copied directly to a function call.
     Useful for printing counterexamples.
     """
-    args_unrolled = html.escape(', '.join(map(_stringify_arg, args)))
-    kwargs_unrolled = html.escape(
-        ("".join(f", {key}: {_stringify_arg(value)}"
-                 for key, value in kwargs.items()))) \
-        if kwargs else ''
+    args_unrolled = ', '.join(map(_stringify_arg, args))
+    kwargs_unrolled = ("".join(f", {key}: {_stringify_arg(value)}"
+                       for key, value in kwargs.items())) \
+                       if kwargs else ''
     return args_unrolled + kwargs_unrolled
 
 
