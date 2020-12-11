@@ -8,6 +8,7 @@ from typing import Iterable, Any, Optional, Callable, Dict, Tuple, List
 import functools
 import copy
 import re
+import operator
 
 from utils.import_reporter import ImportReporter, BadImport
 from utils.args_mutability import assert_immutable_arg_default_values
@@ -223,6 +224,7 @@ def student_exec(student_func: Callable[..., Any],
 def student_test(student_func: Callable[..., Any],
                  teacher_func: Callable[..., Any],
                  *args: Any,
+                 comparator: Callable[[Any, Any], bool] = operator.eq,
                  counterexample: bool = True,
                  check_param_ro: bool = True,
                  check_param_immutable: bool = True,
@@ -246,7 +248,7 @@ def student_test(student_func: Callable[..., Any],
         user_mutable_types=user_mutable_types, **kwargs
     )
 
-    if result != expected:
+    if not comparator(result, expected):
         if counterexample:
             str_args = stringify_args_human_readable(*args, **kwargs)
             args_str = f'na vstupu {str_args}'
