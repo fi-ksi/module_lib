@@ -11,7 +11,31 @@ import re
 import operator
 
 from utils.import_reporter import ImportReporter, BadImport
-from utils.args_mutability import assert_immutable_arg_default_values
+from utils.args_mutability import is_mutable_arg_default_value
+
+
+class CheckerError(Exception):
+    pass
+
+
+class ENoFunction(CheckerError):
+    pass
+
+
+class EExecError(CheckerError):
+    pass
+
+
+class EArgumentChanged(CheckerError):
+    pass
+
+
+class EWritingToStdout(CheckerError):
+    pass
+
+
+class EMutableArg(CheckerError):
+    pass
 
 
 def exception_str(exc: BaseException) -> str:
@@ -51,9 +75,10 @@ def wrap_student_module(filename: str,
             stack.enter_context(redirect_stdout(c_stdout))
         orig_module = import_file('student', filename)
 
-    if c_stdout is not None:
-        assert not c_stdout.getvalue(), \
+    if c_stdout is not None and c_stdout.getvalue():
+        raise EWritingToStdout(
             "Řešení obsahuje kód, který se vykonává mimo funkce."
+        )
 
     wrapped_module = ModuleType('student')
 
@@ -87,11 +112,11 @@ def student_function(student_module: ModuleType,
     Tries to find function 'func_name' in student's code. It successful,
     it returns the function as callable
     """
-    assert hasattr(student_module, func_name), \
-        f"Řešení neobsahuje funkci '{func_name}'!"
+    if not hasattr(student_module, func_name):
+        raise ENoFunction(f"Řešení neobsahuje funkci '{func_name}'!")
     student_func = getattr(student_module, func_name)
-    assert callable(student_func), \
-        f"Řešení neobsahuje funkci '{func_name}'!"
+    if not callable(student_func):
+        raise ENoFunction(f"Řešení neobsahuje funkci '{func_name}'!")
     return student_func  # type: ignore
 
 
@@ -148,10 +173,10 @@ def _student_exec_stdout(student_func: Callable[..., Any], *args: Any,
     except BadImport:
         raise
     except Exception as exc:  # pylint: disable=broad-except
-        assert False, \
-            f"Při pokusu o spuštění funkce '{student_func.__name__}' " \
-            f"{args_str} došlo k chybě: " + \
-            exception_str(exc)
+        raise EExecError(
+            f"Při pokusu o spuštění funkce '{student_func.__name__}' "
+            f"{args_str} došlo k chybě: " + exception_str(exc)
+        )
 
 
 def student_exec_stdout(student_func: Callable[..., Any],
@@ -164,16 +189,20 @@ def student_exec_stdout(student_func: Callable[..., Any],
     """
     Execute student function and return its result & stdout.
 
-    Raise nice assert in case of error.
+    Raise nice Exception in case of error.
     Optinal checks:
      * function does not modify its parameters
      * function does not use immutable default value of a parameter
     """
     if not callable(student_func) or not hasattr(student_func, '__name__'):
-        assert False, f"Nelze zavolat {str(student_func)}, není funkce!"
+        raise ENoFunction(f"Nelze zavolat {str(student_func)}, není funkce!")
 
     if check_param_immutable:
-        assert_immutable_arg_default_values(student_func, user_mutable_types)
+        if is_mutable_arg_default_value(student_func, user_mutable_types):
+            raise EMutableArg(
+                f"Funkce '{student_func.__name__}' obsahuje *mutable* "
+                "výchozí hodnotu argumentu!"
+            )
 
     if counterexample:
         str_args = stringify_args_human_readable(*args, **kwargs)
@@ -191,10 +220,11 @@ def student_exec_stdout(student_func: Callable[..., Any],
         student_func, *args, args_str=args_str, **kwargs
     )
 
-    assert (not check_param_ro or
-            (args == orig_args and kwargs == orig_kwargs)), \
-        (f"Vaše funkce '{student_func.__name__}' změnila argumenty, což je "
-         "zakázáno!")
+    if (check_param_ro and (args != orig_args or kwargs != orig_kwargs)):
+        raise EArgumentChanged(
+            f"Vaše funkce '{student_func.__name__}' změnila argumenty, což je "
+            "zakázáno!"
+        )
 
     return result
 
@@ -216,8 +246,11 @@ def student_exec(student_func: Callable[..., Any],
         check_param_immutable=check_param_immutable,
         user_mutable_types=user_mutable_types, **kwargs
     )
-    assert stdout == '', \
-        f"Funkce '{student_func.__name__}' píše na výstup i když nemá psát!"
+    if stdout != '':
+        raise EWritingToStdout(
+            f"Funkce '{student_func.__name__}' píše na výstup "
+            "i když nemá psát!"
+        )
     return result
 
 
@@ -236,10 +269,11 @@ def student_test(student_func: Callable[..., Any],
         orig_kwargs = copy.deepcopy(kwargs)
 
     expected = teacher_func(*args, **kwargs)
-    assert (not check_param_ro or
-            (args == orig_args and kwargs == orig_kwargs)), \
-        (f"Učitelská funkce '{teacher_func.__name__}' změnila argumenty, "
-         "napište do disk. fóra!")
+    if check_param_ro and (args != orig_args or kwargs != orig_kwargs):
+        raise EArgumentChanged(
+            f"Učitelská funkce '{teacher_func.__name__}' změnila argumenty, "
+            "napište do diskuze!"
+        )
 
     result = student_exec(
         student_func, *args, counterexample=counterexample,
