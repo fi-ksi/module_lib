@@ -61,7 +61,8 @@ def import_file(name: str, filename: str) -> ModuleType:
 
 def wrap_student_module(filename: str,
                         allowed_libs: Iterable[str],
-                        check_stdout: bool = False) -> ModuleType:
+                        check_stdout: bool = False,
+                        module_name: str = 'student') -> ModuleType:
     """Import a student module and wrap all calls with ImportReporter.
     This needs Python 3.7.
     If check_stdout is True, asserts that nothing is written on stdout
@@ -73,7 +74,7 @@ def wrap_student_module(filename: str,
         stack.enter_context(ImportReporter(allowed_libs))
         if c_stdout is not None:
             stack.enter_context(redirect_stdout(c_stdout))
-        orig_module = import_file('student', filename)
+        orig_module = import_file(module_name, filename)
 
     if c_stdout is not None and c_stdout.getvalue():
         raise EWritingToStdout(
