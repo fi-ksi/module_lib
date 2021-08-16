@@ -12,3 +12,7 @@ která vygeneruje seznam příkazů, které se následně provedou mimo sandbox 
 
 * python modul Pillow
 * python modul image
+* [ghostscript binary][] - převod EPS na PNG
+
+
+[]: https://www.ghostscript.com/download/gsdnld.html

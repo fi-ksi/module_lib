@@ -5,10 +5,21 @@ import math
 
 KSI_TURTLE_8kl = []
 
-def KSI_WRITE_8kl():
-    print("\n#KSI_META_OUTPUT_0a859a#")
+def KSI_WRITE_8kl(filename: str = None) -> str:
+    answer_list = ["\n#KSI_META_OUTPUT_0a859a#"]
     for t in KSI_TURTLE_8kl:
-        print((" ".join(str(x) for x in t)))
+        answer_list.append((" ".join(str(x) for x in t)))
+
+    answer_str = "\n".join(answer_list)
+    if filename is None:
+        print(answer_str)
+    else:
+        with open(filename, "w") as f:
+            f.write(answer_str)
+
+    return answer_str
+
+
 
 def done():
     pass

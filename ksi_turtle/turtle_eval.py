@@ -48,6 +48,9 @@ def interpret_turtle(file, turtle):
         lines = file
 
     for line in lines:
+        if len(line.strip()) == 0 or '#KSI_META_OUTPUT_0a859a#' in line:
+            continue
+
         s = line.split(" ")
         if s[4] == "fd":
             turtle.fd(float(s[5]))
@@ -78,3 +81,9 @@ def compare_solutions(student, solution):
             if delta >= MIN_ALPHA_DELTA:
                 difference += 1
     return difference
+
+
+def convert_eps_to_png(input_filename: str, output_filename: str):
+    im = Image.open(input_filename)
+    fig = im.convert('RGBA')
+    fig.save(output_filename, lossless=True)
