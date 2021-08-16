@@ -102,15 +102,14 @@ class Turtle:
     def left(self, angle):
         self.right(-angle)
 
-    def goto(self, x, y = None):
-        if y == None:
+    def goto(self, x, y=None):  # accepts either: tuple (x, y), or two parameters x and y
+        if y is None:
             self.x = x[0]
-            self.y = x[0]
-            KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", x[0], y[0]))
+            self.y = x[1]
         else:
             self.x = x
             self.y = y
-            KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", x, y))
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", self.x, self.y))
 
     def setx(self, x):
         self.goto(x, self.y)
@@ -120,7 +119,7 @@ class Turtle:
 
     def setheading(self, angle):
         self.dir = self.to_standard(self.to_radians(angle))
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(self.angle)))
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(self.angle)))  # todo: self.angle doesn't exist
 
     def home(self):
         self.x = self.y = 0
@@ -130,11 +129,11 @@ class Turtle:
             self.dir = 90
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "home"))
 
-    def circle(self, radius, extent = None, steps = None):
+    def circle(self, radius, extent=None, steps=None):
         # ToDo
         pass
 
-    def dot(self, size = None, *color):
+    def dot(self, size=None, *color):
         # ToDo
         pass
 
@@ -142,7 +141,7 @@ class Turtle:
         # ToDo
         pass
 
-    def clearstamp(self, stampid):
+    def clearstamp(self, stamp_id):
         # ToDo
         pass
 
@@ -157,7 +156,7 @@ class Turtle:
         self.dir = tmp[2]
         self.pen = tmp[3]
 
-    def speed(speed = None):
+    def speed(self, speed=None):
         pass
 
     def position(self):
@@ -183,8 +182,8 @@ class Turtle:
                 return math.degrees(self.dir) - 90
             return self.dir - math.radians(90)
 
-    def distance(self, x, y = None):
-        if y == None:
+    def distance(self, x, y=None):
+        if y is None:
             y = x[1]
             x = x[0]
         dx = self.x - x
@@ -205,15 +204,15 @@ class Turtle:
         self.pen = "u" 
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup"))
 
-    def pensize(width=None):
+    def pensize(self, width=None):
         # ToDo
         pass
 
-    def pen(pen=None, **pendict):
+    def pen(self, pen=None, **pendict):
         # ToDo
         pass
 
-    def isdown():
+    def isdown(self):
         return self.pen == "d"
 
     # aliases
