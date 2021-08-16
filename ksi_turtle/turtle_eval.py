@@ -62,7 +62,7 @@ def interpret_turtle(file, turtle):
         elif s[4] == "pendown":
             turtle.pendown()
         elif s[4] == "penup":
-            tutlet.penup()
+            turtle.penup()
 
 def compare_solutions(student, solution):
     values1, width1, height1 = load_image(student)
