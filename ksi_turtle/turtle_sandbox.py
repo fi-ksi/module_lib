@@ -78,9 +78,9 @@ class Turtle:
         self.mode = "s"
         self.pen = "d"
 
-    def to_radians(self, units):
+    def to_radians(self, unit):
         if self.units == "d":
-            return math.radians(units)
+            return math.radians(unit)
         return unit
 
     def to_degrees(self, unit):
@@ -130,7 +130,7 @@ class Turtle:
 
     def setheading(self, angle):
         self.dir = self.to_standard(self.to_radians(angle))
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(self.angle)))  # todo: self.angle doesn't exist
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle)))
 
     def home(self):
         self.x = self.y = 0
