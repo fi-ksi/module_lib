@@ -56,6 +56,15 @@ def interpret_turtle(file, turtle):
             continue
 
         s = line.split(" ")
+        
+        turtle.setx(float(s[0]))
+        turtle.sety(float(s[1]))
+        turtle.seth(float(s[2]))
+        if s[3] == "d":
+            turtle.down()
+        else:
+            turtle.up()
+
         if s[4] == "fd":
             turtle.fd(float(s[5]))
         elif s[4] == "rt":

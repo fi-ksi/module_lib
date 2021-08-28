@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import math
+from copy import deepcopy
 
 KSI_TURTLE_8kl = []
 
@@ -225,6 +226,14 @@ class Turtle:
 
     def isdown(self):
         return self.pen == "d"
+    
+    def clone(self):
+        return deepcopy(self)
+
+    def __str__(self):
+        return f'{self.x} {self.y} {self.dir} {self.units} {self.mode} {self.pen}'
+
+    __repr__ = __str__
 
     # aliases
     fd = forward
