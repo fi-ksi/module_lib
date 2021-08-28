@@ -230,6 +230,10 @@ class Turtle:
     def clone(self):
         return deepcopy(self)
 
+    def color(self, *args):
+        # todo
+        pass
+
     def __str__(self):
         return f'{self.x} {self.y} {self.dir} {self.units} {self.mode} {self.pen}'
 
