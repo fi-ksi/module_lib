@@ -1,5 +1,5 @@
 import sys
-from turtle import Turtle, getcanvas, resetscreen, screensize
+from turtle import Turtle, getcanvas, resetscreen, screensize, tracer, update
 from PIL import Image, ImageOps
 
 MIN_ALPHA_DELTA = 100
@@ -22,12 +22,16 @@ def store_current_image(name):
 def store_image(turtle, drawing_function, name, color=None):
     resetscreen()
     screensize(800, 600)
+    tracer(0, 0)  # this is turtle<library>.tracer
+
     turtle.hideturtle()
     turtle.speed(0)
     turtle.pensize(3)
     if color:
         turtle.pencolor(color)
     drawing_function(turtle)
+    update()  # this is turtle<library>.update
+    
     store_current_image(name)
 
 
