@@ -100,8 +100,8 @@ class Turtle:
         return angle + math.radians(90)
 
     def forward(self, step):
-        new_x = self.x + step * math.sin(self.dir)
-        new_y = self.y + step * math.cos(self.dir)
+        new_x = self.x + step * math.cos(self.dir)
+        new_y = self.y + step * math.sin(self.dir)
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "fd", step))
         self.x = new_x
         self.y = new_y

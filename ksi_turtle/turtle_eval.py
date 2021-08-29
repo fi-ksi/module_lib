@@ -1,6 +1,7 @@
 import sys
 from turtle import Turtle, getcanvas, resetscreen, screensize, tracer, update
 from PIL import Image, ImageOps
+import math
 
 MIN_ALPHA_DELTA = 100
 
@@ -57,9 +58,13 @@ def interpret_turtle(file, turtle):
 
         s = line.split(" ")
         
+        turtle.penup()
         turtle.setx(float(s[0]))
         turtle.sety(float(s[1]))
-        turtle.seth(float(s[2]))
+        heading_degrees = math.degrees(float(s[2]))
+        turtle.seth(heading_degrees)
+        turtle.pendown()
+
         if s[3] == "d":
             turtle.down()
         else:
