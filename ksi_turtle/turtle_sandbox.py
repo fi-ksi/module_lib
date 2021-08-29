@@ -110,7 +110,7 @@ class Turtle:
         self.forward(-distance)
 
     def right(self, angle):
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "rt", self.to_degrees(angle)))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "rt", self.to_degrees(angle)))
         self.dir -= self.to_radians(angle)
 
     def left(self, angle):
@@ -134,7 +134,7 @@ class Turtle:
         self.goto(self.x, y)
 
     def setheading(self, angle):
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle)))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle)))
         self.dir = self.to_standard(self.to_radians(angle))
 
     def home(self):
@@ -215,11 +215,11 @@ class Turtle:
         self.units = "r"
 
     def pendown(self):
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "pendown"))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "pendown"))
         self.pen = "d"
 
     def penup(self):
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup"))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup"))
         self.pen = "u" 
 
     def pensize(self, width=None):

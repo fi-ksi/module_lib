@@ -67,18 +67,10 @@ def interpret_turtle(file, turtle):
 
         if s[4] == "fd":
             turtle.fd(float(s[5]))
-        elif s[4] == "rt":
-            turtle.rt(float(s[5]))
         elif s[4] == "goto":
-            turtle.goto(float(s[5]), float(s[6]))
-        elif s[4] == "seth":
             turtle.goto(float(s[5]), float(s[6]))
         elif s[4] == "home":
             turtle.home()
-        elif s[4] == "pendown":
-            turtle.pendown()
-        elif s[4] == "penup":
-            turtle.penup()
 
 def compare_solutions(student, solution):
     values1, width1, height1 = load_image(student)
