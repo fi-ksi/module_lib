@@ -100,28 +100,32 @@ class Turtle:
         return angle + math.radians(90)
 
     def forward(self, step):
-        self.x += step * math.sin(self.dir)
-        self.y += step * math.cos(self.dir)
+        new_x = self.x + step * math.sin(self.dir)
+        new_y = self.y + step * math.cos(self.dir)
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "fd", step))
+        self.x = new_x
+        self.y = new_y
 
     def back(self, distance):
         self.forward(-distance)
 
     def right(self, angle):
-        self.dir -= self.to_radians(angle)
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "rt", self.to_degrees(angle)))
+        self.dir -= self.to_radians(angle)
 
     def left(self, angle):
         self.right(-angle)
 
     def goto(self, x, y=None):  # accepts either: tuple (x, y), or two parameters x and y
         if y is None:
-            self.x = x[0]
-            self.y = x[1]
+            new_x = x[0]
+            new_y = x[1]
         else:
-            self.x = x
-            self.y = y
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", self.x, self.y))
+            new_x = x
+            new_y = y
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", new_x, new_y))
+        self.x = new_x
+        self.y = new_y
 
     def setx(self, x):
         self.goto(x, self.y)
@@ -130,16 +134,16 @@ class Turtle:
         self.goto(self.x, y)
 
     def setheading(self, angle):
-        self.dir = self.to_standard(self.to_radians(angle))
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle)))
+        self.dir = self.to_standard(self.to_radians(angle))
 
     def home(self):
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "home"))
         self.x = self.y = 0
         if self.mode == "s":
             self.dir = 0
         else:
             self.dir = 90
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "home"))
 
     def circle(self, radius, extent=None, steps=None):
         # ToDo
@@ -161,12 +165,14 @@ class Turtle:
         # ToDo
         pass
 
-    def undo(self):
-        tmp = KSI_TURTLE_8kl.pop()
-        self.x = tmp[0]
-        self.y = tmp[1]
-        self.dir = tmp[2]
-        self.pen = tmp[3]
+    # def undo(self):
+    #     # the following implementation presumed that the position in tmp is AFTER the step
+    #     # however to allow clone we've swapped it to be BEFORE the step
+    #     tmp = KSI_TURTLE_8kl.pop()
+    #     self.x = tmp[0]
+    #     self.y = tmp[1]
+    #     self.dir = tmp[2]
+    #     self.pen = tmp[3]
 
     def speed(self, speed=None):
         pass
@@ -209,12 +215,12 @@ class Turtle:
         self.units = "r"
 
     def pendown(self):
-        self.pen = "d"
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "pendown"))
+        self.pen = "d"
 
     def penup(self):
-        self.pen = "u" 
         KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup"))
+        self.pen = "u" 
 
     def pensize(self, width=None):
         # ToDo
