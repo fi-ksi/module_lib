@@ -240,6 +240,12 @@ class Turtle:
         # todo
         pass
 
+    def hideturtle(self):
+        pass
+
+    def showturtle(self):
+        pass
+
     def __str__(self):
         return f'{self.x} {self.y} {self.dir} {self.units} {self.mode} {self.pen}'
 
@@ -260,5 +266,7 @@ class Turtle:
     pu = penup
     up = penup
     width = pensize
+    st = showturtle
+    ht = hideturtle
 
 ######## End of turtle library remplacement #######
