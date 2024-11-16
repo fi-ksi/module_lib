@@ -36,7 +36,7 @@ class ImportReporter:
             self.new_import = arg
             return
 
-        self.new_import = self._import
+        self.new_import = self.make_importer()
         allowed_entities: Dict[str, List[str]] = defaultdict(list)
         for item in arg:
             lib, _, entity = item.partition('/')
@@ -48,46 +48,66 @@ class ImportReporter:
                              for k, v in allowed_entities.items()})
 
     # pylint: disable=redefined-builtin,too-many-arguments
-    def _import(self, name: str, globals_: Optional[Dict[str, Any]] = None,
-                locals_: Optional[Dict[str, Any]] = None,
-                fromlist: Optional[List[str]] = None,
-                level: int = 0) -> ModuleType:
-        if globals_ is None:
-            globals_ = {}
-        if locals_ is None:
-            locals_ = {}
-        if fromlist is None:
-            fromlist = []
+    def make_importer(self) -> Callable[[str, dict[str, Any] | None, dict[str, Any] | None, list[str] | None, int], ModuleType]:
 
-        allowed_entities = self.allowed.get(name)
-        if allowed_entities is None:
-            raise BadImport(name)
+        def make_importer(name: str, globals_: Optional[Dict[str, Any]] = None,
+                          locals_: Optional[Dict[str, Any]] = None,
+                          fromlist: Optional[List[str]] = None,
+                          level: int = 0) -> ModuleType:
 
-        if allowed_entities:
-            if not fromlist:
+            if globals_ is None:
+                globals_ = {}
+            if locals_ is None:
+                locals_ = {}
+            if fromlist is None:
+                fromlist = []
+
+            allowed_entities = self.allowed.get(name)
+            if allowed_entities is None:
                 raise BadImport(name)
 
-            for entity in fromlist:
-                if entity not in allowed_entities:
-                    raise BadImport(name, entity)
+            if allowed_entities:
+                if not fromlist:
+                    raise BadImport(name)
 
-        # temporarily restore the original __import__ so that
-        # the imported library may import other libraries
-        with ImportReporter(self.orig_import):
-            result = __import__(name, globals_, locals_, fromlist, level)
+                for entity in fromlist:
+                    if entity not in allowed_entities:
+                        raise BadImport(name, entity)
 
-        if not allowed_entities:
-            return result
+            # temporarily restore the original __import__ so that
+            # the imported library may import other libraries
+            with ImportReporter(self.orig_import):
+                result = __import__(name, globals_, locals_, fromlist, level)
 
-        module = ModuleType(result.__name__)
-        module.__package__ = result.__package__
-        for entity in allowed_entities:
-            setattr(module, entity, getattr(result, entity))
+            if not allowed_entities:
+                return result
 
-        return module
+            module = ModuleType(result.__name__)
+            module.__package__ = result.__package__
+            for entity in allowed_entities:
+                setattr(module, entity, getattr(result, entity))
+
+            return module
+
+        return make_importer
 
     def __enter__(self) -> None:
         builtins.__import__ = self.new_import
 
     def __exit__(self, *args: Any) -> None:
         builtins.__import__ = self.orig_import
+
+
+if __name__ == "__main__":
+    def test():
+        with ImportReporter(['math']):
+            try:
+                import os
+                raise Exception("Did not prevent importing OS")
+            except BadImport:
+                pass
+            import math
+            print('Math imported', math.pi)
+        print('Test done')
+
+    test()
