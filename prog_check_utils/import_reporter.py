@@ -3,7 +3,7 @@
 import builtins
 from collections import defaultdict
 from types import ModuleType
-from typing import Callable, Iterable, Union, Dict, Tuple, List, Any, Optional
+from typing import Callable, Iterable, Dict, Tuple, List, Any, Optional
 
 
 class BadImport(Exception):
@@ -26,19 +26,18 @@ class ImportReporter:
     All __import__ calls have to respect the allowed imports,
     otherwise a BadImport exception is raised."""
 
-    __slots__ = ('orig_import', 'new_import', 'allowed')
+    __slots__ = ('orig_import', 'new_import', 'allowed', 'orig_loader', 'new_loader')
 
-    def __init__(self, arg: Union[Callable, Iterable[str]]):
+    def __init__(self, allowed: Iterable[str], new_import: Optional[Callable] = None, loader: Optional[Callable] = None) -> None:
         self.orig_import = builtins.__import__
+        self.orig_loader = builtins.__loader__ if hasattr(builtins, '__loader__') else None
         # adding _io here as workaround for strange behaviour in Python >= 3.8
         self.allowed: Dict[str, Tuple[str, ...]] = {'_io': ()}
-        if callable(arg):
-            self.new_import = arg
-            return
 
-        self.new_import = self.make_importer()
+        self.new_import = new_import or self.make_importer()
+        self.new_loader = loader
         allowed_entities: Dict[str, List[str]] = defaultdict(list)
-        for item in arg:
+        for item in allowed:
             lib, _, entity = item.partition('/')
             if entity:
                 allowed_entities[lib].append(entity)
@@ -76,8 +75,17 @@ class ImportReporter:
 
             # temporarily restore the original __import__ so that
             # the imported library may import other libraries
-            with ImportReporter(self.orig_import):
+            with ImportReporter(self.allowed, new_import=self.orig_import, loader=self.orig_loader):
                 result = __import__(name, globals_, locals_, fromlist, level)
+
+            try:
+                result.__dict__['__loader__'] = self.new_loader
+            except (AttributeError, TypeError, KeyError):
+                pass
+            try:
+                result.__dict__['importer'] = self.new_import
+            except (AttributeError, TypeError, KeyError):
+                pass
 
             if not allowed_entities:
                 return result
@@ -93,14 +101,17 @@ class ImportReporter:
 
     def __enter__(self) -> None:
         builtins.__import__ = self.new_import
+        builtins.__loader__ = self.new_loader
 
     def __exit__(self, *args: Any) -> None:
         builtins.__import__ = self.orig_import
+        if self.orig_loader:
+            builtins.__loader__ = self.orig_loader
 
 
 if __name__ == "__main__":
     def test():
-        with ImportReporter(['math']):
+        with ImportReporter(['math', 'sys']):
             try:
                 import os
                 raise Exception("Did not prevent importing OS")
