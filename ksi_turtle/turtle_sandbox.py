@@ -6,6 +6,9 @@ from copy import deepcopy
 
 KSI_TURTLE_8kl = []
 
+def KSI_RESET_8kl():
+    KSI_TURTLE_8kl.clear()
+
 def KSI_WRITE_8kl(filename: str = None) -> str:
     answer_list = ["\n#KSI_META_OUTPUT_0a859a#"]
     for t in KSI_TURTLE_8kl:
