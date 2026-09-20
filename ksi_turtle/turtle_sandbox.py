@@ -145,9 +145,31 @@ class Turtle:
         else:
             self.dir = 90
 
+    def _point_at_direction(self, direction):
+        # returns point on unit circle with centre at (0, 0)
+        # directed at direction (in rad)
+        return Vec2D(math.cos(direction), math.sin(direction))
+
     def circle(self, radius, extent=None, steps=None):
-        # ToDo
-        pass
+        if extent is None:
+            extent = 2*math.pi
+        elif self.units == 'd':
+            extent *= 2*math.pi / 360
+        if extent > 2*math.pi:
+            extent %= 2*math.pi
+            extent += 2*math.pi
+        if steps is None:
+            # This then part is taken from official implementation
+            frac = abs(extent)/(2*math.pi)
+            steps = 1+int(min(11+abs(radius)/6.0, 59.0)*frac)
+
+        pos = self.position()
+        centre = pos - self._point_at_direction(self.dir-math.pi/2)*radius
+        for step in range(1, steps+1):
+            direction = self._point_at_direction(self.dir-math.pi/2 + step/steps*extent)
+            self.goto(centre + direction*radius)
+        self.dir += extent
+        self.dir %= 2*math.pi
 
     def dot(self, size=None, *color):
         # ToDo
@@ -181,8 +203,18 @@ class Turtle:
         return Vec2D(self.x, self.y)
 
     def towards(self, x, y):
-        # ToDo
-        pass
+        # Taken from official implementation, modified
+        if y is not None:
+            pos = Vec2D(x, y)
+        if isinstance(x, Vec2D):
+            pos = x
+        elif isinstance(x, tuple):
+            pos = Vec2D(*x)
+        x, y = pos - self.position()
+        result = round(math.degrees(math.atan2(y, x)), 10) % 360.0
+        fullcircle = (2*math.pi if self.units == 'r' else 360)
+        result *= fullcircle / 360
+        return (result - self.heading()) % fullcircle
 
     def xcor(self):
         return self.x
