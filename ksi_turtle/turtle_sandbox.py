@@ -161,10 +161,16 @@ class Turtle:
         if extent > 2*math.pi:
             extent %= 2*math.pi
             extent += 2*math.pi
+        if extent < -2*math.pi:
+            extent %= 2*math.pi
+            extent -= 4*math.pi
         if steps is None:
             # This then part is taken from official implementation
             frac = abs(extent)/(2*math.pi)
             steps = 1+int(min(11+abs(radius)/6.0, 59.0)*frac)
+
+        if radius < 0:
+            extent = -extent
 
         pos = self.position()
         centre = pos - self._point_at_direction(self.dir-math.pi/2)*radius
@@ -205,7 +211,8 @@ class Turtle:
     def position(self):
         return Vec2D(self.x, self.y)
 
-    def towards(self, x, y):
+    def towards(self, x, y=None):
+        assert self.mode == 's'
         # Taken from official implementation, modified
         if y is not None:
             pos = Vec2D(x, y)
@@ -213,11 +220,13 @@ class Turtle:
             pos = x
         elif isinstance(x, tuple):
             pos = Vec2D(*x)
+        elif isinstance(x, Turtle):
+            pos = Vec2D(x.x, x.y)
         x, y = pos - self.position()
         result = round(math.degrees(math.atan2(y, x)), 10) % 360.0
         fullcircle = (2*math.pi if self.units == 'r' else 360)
         result *= fullcircle / 360
-        return (result - self.heading()) % fullcircle
+        return result % fullcircle
 
     def xcor(self):
         return self.x
