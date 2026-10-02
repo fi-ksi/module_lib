@@ -1,6 +1,6 @@
 import sys
 from turtle import Turtle, getcanvas, resetscreen, screensize, tracer, update
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 import math
 
 MIN_ALPHA_DELTA = 100
@@ -40,6 +40,35 @@ def combine_images(front, back, result):
     b = Image.open(back)
     b.paste(f, (0, 0), ImageOps.invert(f.split()[-1]))
     b.save(result)
+
+def combine_images_twoway(student, underapprox, overapprox, result, colors=("#000000FF", "#FF0000FF", "#0000FFFF")):
+    # Colors: (correct, solution-only, student-only)
+
+    values_s, width_s, height_s = load_image(student)
+    values_u, width_u, height_u = load_image(underapprox)
+    values_o, width_o, height_o = load_image(overapprox)
+
+    assert width_s == width_u == width_o and height_s == height_u == height_o, 'Obrazky nejsou stejne velke!'
+
+    output = Image.new("RGBA", (width_s, height_s), (255, 255, 255, 255))
+    draw = ImageDraw.Draw(output)
+
+    for x in range(width_s):
+        for y in range(height_s):
+            key = (x, y)
+            if values_s[key] == values_u[key] == 255:
+                continue
+            if values_u[key] >= values_s[key] and values_s[key] >= values_o[key]:
+                draw.point(key, colors[0])  # True positive
+
+            elif values_u[key] < values_s[key]:
+                draw.point(key, colors[1])  # False negative
+
+            elif values_s[key] < values_o[key]:
+                draw.point(key, colors[2])  # False positive
+
+    output.save(result)
+
 
 def interpret_turtle(file, turtle):
     turtle.speed(0)
@@ -90,6 +119,23 @@ def compare_solutions(student, solution):
             delta = abs(value1 - value2)
             if delta >= MIN_ALPHA_DELTA:
                 difference += 1
+    return difference
+
+def compare_solutions_twoway(student, underapprox, overapprox):
+    values_s, width_s, height_s = load_image(student)
+    values_u, width_u, height_u = load_image(underapprox)
+    values_o, width_o, height_o = load_image(overapprox)
+
+    assert width_s == width_u == width_o and height_s == height_u == height_o, 'Obrazky nejsou stejne velke!'
+
+    difference = 0
+    
+    for x in range(width_s):
+        for y in range(height_s):
+            key = (x, y)
+            if values_u[key] < values_s[key] or values_s[key] < values_o[key]:
+                difference += 1
+
     return difference
 
 
