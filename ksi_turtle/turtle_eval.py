@@ -20,7 +20,7 @@ def store_current_image(name):
     canvas.postscript(file=name, width=1150, x=-1150/2, height=700, y=-700/2)
     #eps_to_png(name)
 
-def store_image(turtle, drawing_function, name, color=None, pensize=None):
+def store_image(turtle, drawing_function, name, color=None, pensize=3):
     resetscreen()
     screensize(800, 600)
     tracer(0, 0)  # this is turtle<library>.tracer
