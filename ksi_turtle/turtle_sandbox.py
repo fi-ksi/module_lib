@@ -81,6 +81,7 @@ class Turtle:
         self.units = "d"
         self.mode = "s"
         self.pen = "d"
+        self._pensize = 1
 
     def to_radians(self, unit):
         if self.units == "d":
@@ -105,7 +106,7 @@ class Turtle:
     def forward(self, step):
         new_x = self.x + step * math.cos(self.dir)
         new_y = self.y + step * math.sin(self.dir)
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "fd", step))
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "fd", step, self._pensize))
         self.x = new_x
         self.y = new_y
 
@@ -113,7 +114,7 @@ class Turtle:
         self.forward(-distance)
 
     def right(self, angle):
-        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "rt", self.to_degrees(angle)))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "rt", self.to_degrees(angle), self._pensize))
         self.dir -= self.to_radians(angle)
 
     def left(self, angle):
@@ -126,7 +127,7 @@ class Turtle:
         else:
             new_x = x
             new_y = y
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", new_x, new_y))
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "goto", new_x, new_y, self._pensize))
         self.x = new_x
         self.y = new_y
 
@@ -137,11 +138,11 @@ class Turtle:
         self.goto(self.x, y)
 
     def setheading(self, angle):
-        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle)))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "seth", self.to_degrees(angle), self._pensize))
         self.dir = self.to_standard(self.to_radians(angle))
 
     def home(self):
-        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "home"))
+        KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "home", self._pensize))
         self.x = self.y = 0
         if self.mode == "s":
             self.dir = 0
@@ -259,16 +260,17 @@ class Turtle:
         self.units = "r"
 
     def pendown(self):
-        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "pendown"))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "pendown", self._pensize))
         self.pen = "d"
 
     def penup(self):
-        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup"))
+        # KSI_TURTLE_8kl.append((self.x, self.y, self.dir, self.pen, "penup", self._pensize))
         self.pen = "u" 
 
     def pensize(self, width=None):
-        # ToDo
-        pass
+        if width is None:
+            return self._pensize
+        self._pensize = width
 
     def pen(self, pen=None, **pendict):
         # ToDo
