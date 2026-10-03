@@ -15,14 +15,14 @@ def load_image(name):
     width, height = im.size
     return values, width, height
 
-def store_current_image(name):
+def store_current_image(name, width=1150, height=700):
     canvas = getcanvas()
-    canvas.postscript(file=name, width=1150, x=-1150/2, height=700, y=-700/2)
+    canvas.postscript(file=name, width=width, x=-width/2, height=height, y=-height/2)
     #eps_to_png(name)
 
-def store_image(turtle, drawing_function, name, color=None, pensize=3):
+def store_image(turtle, drawing_function, name, color=None, pensize=3, screen_size=(1150, 700)):
     resetscreen()
-    screensize(800, 600)
+    screensize(*screen_size)
     tracer(0, 0)  # this is turtle<library>.tracer
 
     turtle.hideturtle()
@@ -33,7 +33,7 @@ def store_image(turtle, drawing_function, name, color=None, pensize=3):
     drawing_function(turtle)
     update()  # this is turtle<library>.update
     
-    store_current_image(name)
+    store_current_image(name, *screen_size)
 
 def combine_images(front, back, result):
     f = Image.open(front)
