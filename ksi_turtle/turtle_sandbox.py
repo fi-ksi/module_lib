@@ -81,7 +81,7 @@ class Turtle:
         self.units = "d"
         self.mode = "s"
         self.pen = "d"
-        self._pensize = 1
+        self._pensize = 3
 
     def to_radians(self, unit):
         if self.units == "d":
